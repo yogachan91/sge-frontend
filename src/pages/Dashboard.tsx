@@ -190,7 +190,7 @@ const Dashboard = () => {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:8080/search-po", {
+      const res = await fetch("http://100.124.115.86:8080/search-po", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
