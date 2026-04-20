@@ -109,7 +109,8 @@ function DeadlineCountdown({ deadline }: { deadline: string }) {
   const deadlineDate = parseIndonesianDate(deadline);
   if (!deadlineDate) return <span className="text-sm text-muted-foreground flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{deadline}</span>;
 
-  const today = new Date(2026, 3, 11); // Current date: 2026-04-11
+//  const today = new Date(2026, 3, 11); // Current date: 2026-04-11
+  const today = new Date();
   const diffMs = deadlineDate.getTime() - today.getTime();
   const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
@@ -208,12 +209,48 @@ export default function OrderMilestone({ order }: { order: Order }) {
                     <span className="text-sm text-muted-foreground">— {order.client}</span>
                   </div>
                   <div className="flex items-center gap-2.5 mt-1 flex-wrap">
-                    <span className="text-sm text-muted-foreground">{order.product}</span>
-                    <span className="text-xs text-muted-foreground">•</span>
+                    {/* <span className="text-sm text-muted-foreground">{order.product}</span> */}
+                    <span className="text-xs text-muted-foreground">TOTAL QTY : </span>
                     <span className="text-sm text-muted-foreground">{order.qty.toLocaleString("id-ID")} pcs</span>
                     <span className="text-xs text-muted-foreground">•</span>
                     <DeadlineCountdown deadline={order.deadline} />
                   </div>
+                  {/* 🔥 PART NUMBER LIST */}
+                  {order.partNumbers && order.partNumbers.length > 0 && (
+  <div className="mt-3 text-xs">
+
+    {/* HEADER */}
+    <div className="grid grid-cols-[180px_1fr_1fr] gap-3 font-semibold text-muted-foreground mb-1">
+      <span>Part Number</span>
+      <span>Tanggal PO</span>
+      <span>Tanggal Delivery</span>
+    </div>
+
+    {/* ROW */}
+    <div className="space-y-1">
+      {order.partNumbers.map((p: any, i: number) => (
+        <div
+          key={i}
+          className="grid grid-cols-[180px_1fr_1fr] gap-3 items-center"
+        >
+          <span className="font-medium text-foreground">
+            {p.nama}
+          </span>
+
+          <span className="text-muted-foreground">
+            {p.tgl_po}
+          </span>
+
+          <span className="text-muted-foreground">
+            {p.tgl_delivery}
+          </span>
+        </div>
+      ))}
+    </div>
+
+  </div>
+)}
+
                 </div>
               </div>
               <div className="flex items-center gap-3 shrink-0">

@@ -174,7 +174,8 @@ const normalizeOrder = (item: any) => ({
   poDate: item.po_date,
   currentStage: item.current_stage, // 🔥 FIX snake_case → camelCase
   stageEnteredDate: item.stage_entered_date,
-  stages: item.stages || {}, // 🔥 anti undefined
+  stages: item.stages || {},
+  partNumbers: item.part_number || [], // 🔥 anti undefined
 });
 
 const Dashboard = () => {
@@ -191,6 +192,7 @@ const Dashboard = () => {
       setLoading(true);
 
       const res = await fetch("http://100.124.115.86:8080/search-po", {
+    //    const res = await fetch("http://localhost:8080/search-po", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
