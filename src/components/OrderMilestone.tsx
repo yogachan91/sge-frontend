@@ -13,7 +13,7 @@ const stageConfig: Record<OrderStage, { icon: typeof Package; label: string }> =
   loa: { icon: FileCheck, label: "Letter of Acceptance (LoA)" },
   production: { icon: Factory, label: "Produksi" },
   delivery: { icon: Truck, label: "Delivery Order" },
-  closing: { icon: CheckCircle2, label: "Closing / Status PO" },
+//  closing: { icon: CheckCircle2, label: "Closing / Status PO" },
 };
 
 const statusStyles: Record<StageStatus, { dot: string; badge: string; label: string }> = {
@@ -24,14 +24,15 @@ const statusStyles: Record<StageStatus, { dot: string; badge: string; label: str
   pending: { dot: "bg-muted-foreground/40", badge: "bg-muted text-muted-foreground", label: "Menunggu" },
 };
 
-const stageOrder: OrderStage[] = ["materialCheck", "loa", "production", "delivery", "closing"];
+// const stageOrder: OrderStage[] = ["materialCheck", "loa", "production", "delivery", "closing"];
+const stageOrder: OrderStage[] = ["materialCheck", "loa", "production", "delivery"];
 
 const currentStageLabel: Record<OrderStage, string> = {
   materialCheck: "Cek Material",
   loa: "Proses LoA",
   production: "Dalam Produksi",
   delivery: "Dalam Pengiriman",
-  closing: "Closing",
+//  closing: "Closing",
 };
 
 function AiNote({ text }: { text: string }) {
@@ -217,38 +218,58 @@ export default function OrderMilestone({ order }: { order: Order }) {
                   </div>
                   {/* 🔥 PART NUMBER LIST */}
                   {order.partNumbers && order.partNumbers.length > 0 && (
-  <div className="mt-3 text-xs">
+                  <div className="mt-3 text-xs">
 
-    {/* HEADER */}
-    <div className="grid grid-cols-[180px_1fr_1fr] gap-3 font-semibold text-muted-foreground mb-1">
-      <span>Part Number</span>
-      <span>Tanggal PO</span>
-      <span>Tanggal Delivery</span>
-    </div>
+                  {/* HEADER */}
+                  <div className="grid grid-cols-7 gap-3 font-semibold text-muted-foreground mb-1">
+                    <span>Part Number</span>
+                    <span>Qty</span>
+                    <span>Tanggal PO</span>
+                    <span>Delivery Time</span>
+                    <span>Qty Terdeliver</span>
+                    <span>Tanggal Delivery</span>
+                    <span>Status</span>
+                  </div>
 
-    {/* ROW */}
-    <div className="space-y-1">
-      {order.partNumbers.map((p: any, i: number) => (
-        <div
-          key={i}
-          className="grid grid-cols-[180px_1fr_1fr] gap-3 items-center"
-        >
-          <span className="font-medium text-foreground">
-            {p.nama}
-          </span>
+                  {/* ROW */}
+                  <div className="space-y-1">
+                  {order.partNumbers.map((p: any, i: number) => (
+                  <div
+                  key={i}
+                  className="grid grid-cols-7 gap-3 items-center"
+                  >
+                    <span className="font-medium text-foreground">
+                      {p.nama}
+                    </span>
 
-          <span className="text-muted-foreground">
-            {p.tgl_po}
-          </span>
+                    <span className="text-muted-foreground">
+                      {p.qty}
+                    </span>
 
-          <span className="text-muted-foreground">
-            {p.tgl_delivery}
-          </span>
-        </div>
-      ))}
-    </div>
+                    <span className="text-muted-foreground">
+                      {p.tgl_po}
+                    </span>
 
-  </div>
+                    <span className="text-muted-foreground">
+                      {p.delivery_time}
+                    </span>
+
+                    <span className="text-muted-foreground">
+                      {p.qty_terdeliver}
+                    </span>
+
+                    <span className="text-muted-foreground">
+                      {p.tanggal_delivery}
+                    </span>
+
+                    <span className="text-muted-foreground">
+                      {p.status}
+                    </span>
+                  </div>
+                  ))}
+                </div>
+
+              </div>
 )}
 
                 </div>
@@ -419,7 +440,7 @@ export default function OrderMilestone({ order }: { order: Order }) {
                       )}
 
                       {/* Closing */}
-                      {stageKey === "closing" && (
+                      {/* {stageKey === "closing" && (
                         <div className="text-sm text-muted-foreground space-y-2">
                           <div className="flex items-center gap-3 flex-wrap">
                             <span>Invoice: {formatIDR(order.stages.closing.invoiceAmount)}</span>
@@ -433,7 +454,7 @@ export default function OrderMilestone({ order }: { order: Order }) {
                           {order.stages.closing.notes && <p className="text-xs">{order.stages.closing.notes}</p>}
                           {order.stages.closing.aiInsight && <AiNote text={order.stages.closing.aiInsight} />}
                         </div>
-                      )}
+                      )} */}
                     </div>
                   </div>
                 );
