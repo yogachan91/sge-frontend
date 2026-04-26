@@ -344,11 +344,12 @@ export default function OrderMilestone({ order }: { order: Order }) {
                                         <p>ETA: {po.eta} — Status: <span className={cn("font-medium", po.status === "delayed" ? "text-destructive" : po.status === "received" ? "text-[hsl(var(--success))]" : "text-primary")}>{po.status}</span></p>
                                         <p>Outstanding: {po.outstandingQty} {po.unit}</p>
                                       </div>
-                                      {po.aiInsight && <AiNote text={po.aiInsight} />}
+                                      
                                     </div>
                                   ))}
                                 </div>
                               )}
+                              {m.aiInsight && <AiNote text={m.aiInsight} />}
                             </div>
                           ))}
                           {order.stages.materialCheck.aiInsight && <AiNote text={order.stages.materialCheck.aiInsight} />}
