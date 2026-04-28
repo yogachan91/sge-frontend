@@ -9,7 +9,7 @@ import type { Order, StageStatus, OrderStage, ProcessLayerStatus, DeliveryOrderS
 import { useState, useMemo } from "react";
 
 const stageConfig: Record<OrderStage, { icon: typeof Package; label: string }> = {
-  materialCheck: { icon: Package, label: "Cek Material & Purchasing" },
+  materialCheck: { icon: Package, label: "Cek Material" },
   loa: { icon: FileCheck, label: "Letter of Acceptance (LoA)" },
   production: { icon: Factory, label: "Produksi" },
   delivery: { icon: Truck, label: "Delivery Order" },
@@ -214,62 +214,74 @@ export default function OrderMilestone({ order }: { order: Order }) {
                     <span className="text-xs text-muted-foreground">TOTAL QTY : </span>
                     <span className="text-sm text-muted-foreground">{order.qty.toLocaleString("id-ID")} pcs</span>
                     <span className="text-xs text-muted-foreground">•</span>
+                    <span className="text-xs text-muted-foreground">TOTAL AMOUNT : Rp. {order.total ? Number(order.total).toLocaleString("id-ID") : 0}</span>
+                    <span className="text-xs text-muted-foreground">•</span>
                     <DeadlineCountdown deadline={order.deadline} />
                   </div>
                   {/* 🔥 PART NUMBER LIST */}
                   {order.partNumbers && order.partNumbers.length > 0 && (
-                  <div className="mt-3 text-xs">
+                  <div className="mt-3 text-xs border rounded-md overflow-hidden w-full">
 
-                  {/* HEADER */}
-                  <div className="grid grid-cols-7 gap-3 font-semibold text-muted-foreground mb-1">
-                    <span>Part Number</span>
-                    <span>Qty</span>
-                    <span>Tanggal PO</span>
-                    <span>Delivery Time</span>
-                    <span>Qty Terdeliver</span>
-                    <span>Tanggal Delivery</span>
-                    <span>Status</span>
-                  </div>
+    {/* HEADER */}
+    <div className="grid grid-cols-9 gap-3 px-3 py-2 bg-muted text-muted-foreground font-semibold border-b w-full">
+      <span>P/N Customer</span>
+      <span>Qty</span>
+      <span>Harga Satuan</span>
+      <span>Total</span>
+      <span>Tanggal PO</span>
+      <span>Delivery Time</span>
+      <span>Qty Terdeliver</span>
+      <span>Tanggal Delivery</span>
+      <span>Status</span>
+    </div>
 
-                  {/* ROW */}
-                  <div className="space-y-1">
-                  {order.partNumbers.map((p: any, i: number) => (
-                  <div
-                  key={i}
-                  className="grid grid-cols-7 gap-3 items-center"
-                  >
-                    <span className="font-medium text-foreground">
-                      {p.nama}
-                    </span>
+    {/* BODY */}
+    <div className="bg-muted/30">
+      {order.partNumbers.map((p: any, i: number) => (
+        <div
+          key={i}
+          className="grid grid-cols-9 gap-3 px-3 py-2 items-center border-b last:border-0 w-full"
+        >
+          <span className="font-medium text-foreground">
+            {p.nama}
+          </span>
 
-                    <span className="text-muted-foreground">
-                      {p.qty}
-                    </span>
+          <span className="text-muted-foreground">
+            {p.qty}
+          </span>
 
-                    <span className="text-muted-foreground">
-                      {p.tgl_po}
-                    </span>
+          <span className="text-muted-foreground">
+            Rp. {p.harga_satuan ? Number(p.harga_satuan).toLocaleString("id-ID") : 0}
+          </span>
 
-                    <span className="text-muted-foreground">
-                      {p.delivery_time}
-                    </span>
+          <span className="text-muted-foreground">
+            Rp. {p.total ? Number(p.total).toLocaleString("id-ID") : 0}
+          </span>
 
-                    <span className="text-muted-foreground">
-                      {p.qty_terdeliver}
-                    </span>
+          <span className="text-muted-foreground">
+            {p.tgl_po}
+          </span>
 
-                    <span className="text-muted-foreground">
-                      {p.tanggal_delivery}
-                    </span>
+          <span className="text-muted-foreground">
+            {p.delivery_time}
+          </span>
 
-                    <span className="text-muted-foreground">
-                      {p.status}
-                    </span>
-                  </div>
-                  ))}
-                </div>
+          <span className="text-muted-foreground">
+            {p.qty_terdeliver}
+          </span>
 
-              </div>
+          <span className="text-muted-foreground">
+            {p.tanggal_delivery}
+          </span>
+
+          <span className="text-muted-foreground">
+            {p.status}
+          </span>
+        </div>
+      ))}
+    </div>
+
+  </div>
 )}
 
                 </div>
@@ -313,116 +325,195 @@ export default function OrderMilestone({ order }: { order: Order }) {
 
                       {/* Material Check */}
                       {stageKey === "materialCheck" && order.stages.materialCheck.materials.length > 0 && (
-                        <div className="space-y-2">
-                          {order.stages.materialCheck.materials.map((m, i) => (
-                            <div key={i}>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
-                                <MaterialStatusIcon status={m.status} />
-                                <span>{m.name} — {m.required} {m.unit}</span>
-                                <span className="text-xs text-muted-foreground/70">(stok: {m.currentStock})</span>
-                                {m.status === "low" && <span className="text-[hsl(var(--warning))] font-medium text-xs">LOW</span>}
-                                {m.status === "out" && <span className="text-destructive font-medium text-xs">OUT</span>}
-                                {(m.status === "out" || m.status === "low") && (
-                                  <CrossOrderMaterialAlert materialName={m.name} currentOrderId={order.id} />
-                                )}
-                              </div>
-                              {/* Purchasing sub-flow */}
-                              {m.purchasingOrders && m.purchasingOrders.length > 0 && (
-                                <div className="ml-6 mt-1.5 pl-3 border-l-2 border-primary/20 space-y-1.5">
-                                  <div className="flex items-center gap-1.5 text-xs font-medium text-primary/70">
-                                    <ShoppingCart className="h-3 w-3" />
-                                    <span>Purchasing Flow</span>
-                                  </div>
-                                  {m.purchasingOrders.map((po, pi) => (
-                                    <div key={pi} className="text-xs text-muted-foreground space-y-0.5 bg-muted/50 rounded-md p-2">
-                                      <div className="flex items-center gap-1.5 flex-wrap">
-                                        <ArrowRight className="h-3 w-3 text-primary/50" />
-                                        <span className="font-medium">{po.poNumber}</span>
-                                        <span>→ {po.supplier}</span>
-                                      </div>
-                                      <div className="ml-4.5 space-y-0.5">
-                                        <p>ETA: {po.eta} — Status: <span className={cn("font-medium", po.status === "delayed" ? "text-destructive" : po.status === "received" ? "text-[hsl(var(--success))]" : "text-primary")}>{po.status}</span></p>
-                                        <p>Outstanding: {po.outstandingQty} {po.unit}</p>
-                                      </div>
-                                      
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                              {m.aiInsight && <AiNote text={m.aiInsight} />}
-                            </div>
-                          ))}
-                          {order.stages.materialCheck.aiInsight && <AiNote text={order.stages.materialCheck.aiInsight} />}
-                        </div>
-                      )}
-                      {stageKey === "materialCheck" && order.stages.materialCheck.materials.length === 0 && order.stages.materialCheck.aiInsight && (
-                        <AiNote text={order.stages.materialCheck.aiInsight} />
-                      )}
+  <div className="mt-4 overflow-hidden border rounded-lg bg-white">
+    <table className="w-full text-left border-collapse">
+      <thead>
+        <tr className="bg-slate-50 border-b">
+          <th className="px-4 py-3 text-xs font-semibold text-muted-foreground tracking-wider">Nama Material</th>
+          <th className="px-4 py-3 text-xs font-semibold text-muted-foreground tracking-wider">Vendor</th>
+          <th className="px-4 py-3 text-xs font-semibold text-muted-foreground tracking-wider">Jenis</th>
+          <th className="px-4 py-3 text-xs font-semibold text-muted-foreground tracking-wider text-center">Qty Dibutuhkan</th>
+          <th className="px-4 py-3 text-xs font-semibold text-muted-foreground tracking-wider text-center">Stok Gudang</th>
+          <th className="px-4 py-3 text-xs font-semibold text-muted-foreground tracking-wider text-center">Sisa Stok Gudang</th>
+          <th className="px-4 py-3 text-xs font-semibold text-muted-foreground tracking-wider text-center">Status</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y">
+        {order.stages.materialCheck.materials.map((m, i) => (
+          <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+            {/* Nama Material */}
+            <td className="px-4 py-3">
+              <div className="flex flex-col">
+                <span className="font-bold text-sm text-slate-900 uppercase">{m.name}</span>
+                {m.aiInsight && <span className="text-[10px] text-muted-foreground italic">{m.aiInsight}</span>}
+              </div>
+            </td>
+
+            <td className="px-4 py-3">
+              <div className="flex flex-col">
+                <span className="text-sm text-slate-900 uppercase">{m.vendor}</span>
+              </div>
+            </td>
+
+            <td className="px-4 py-3">
+              <div className="flex flex-col">
+                <span className="text-sm text-slate-900 uppercase">{m.jenis}</span>
+              </div>
+            </td>
+
+            {/* Qty */}
+            <td className="px-4 py-3 text-sm text-center font-medium">
+              {m.required} {m.unit}
+            </td>
+
+            {/* Stok Gudang */}
+            <td className="px-4 py-3 text-sm text-center">
+              <span className={m.currentStock < m.required ? "text-destructive font-semibold" : "text-slate-600"}>
+                {m.currentStock} {m.unit}
+              </span>
+            </td>
+
+            {/* Sisa Stok Gudang */}
+            <td className="px-4 py-3 text-sm text-center font-medium">
+            {(() => {
+              const sisa = m.currentStock - m.required;
+
+            return (
+            <span
+              className={
+                sisa < 0
+                ? "text-destructive font-semibold"
+                : sisa === 0
+                ? "text-amber-600 font-semibold"
+                : "text-emerald-600"
+            }
+            >
+            {sisa} {m.unit}
+            </span>
+            );
+            })()}
+            </td>
+
+            {/* Status dengan Icon */}
+            <td className="px-4 py-3 text-center">
+              <div className="flex items-center justify-center gap-2">
+                {m.status === "ok" ? (
+                  <div className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full text-[10px] font-bold">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    AVAILABLE
+                  </div>
+                ) : m.status === "low" ? (
+                  <div className="flex items-center gap-1 text-amber-600 bg-amber-50 px-2 py-1 rounded-full text-[10px] font-bold">
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                    LOW
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1 text-destructive bg-red-50 px-2 py-1 rounded-full text-[10px] font-bold">
+                    <XCircle className="h-3.5 w-3.5" />
+                    OUT
+                  </div>
+                )}
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    
+    {/* Insight Global jika ada */}
+    {order.stages.materialCheck.aiInsight && (
+      <div className="p-3 border-t bg-slate-50/50">
+        <AiNote text={order.stages.materialCheck.aiInsight} />
+      </div>
+    )}
+  </div>
+)}
 
                       {/* LoA */}
                       {stageKey === "loa" && stage.status !== "pending" && (
-                        <div className="text-sm text-muted-foreground space-y-1">
-                          {order.stages.loa.loaNumber && <p className="font-medium text-foreground">{order.stages.loa.loaNumber}</p>}
-                          {order.stages.loa.issuedDate && <p>Tanggal terbit: {order.stages.loa.issuedDate}</p>}
-                          {order.stages.loa.referencedMaterials && <p className="text-xs">Material: {order.stages.loa.referencedMaterials}</p>}
-                          {order.stages.loa.assignedJobTask && <p className="text-xs">Job: {order.stages.loa.assignedJobTask}</p>}
-                          {order.stages.loa.aiInsight && <AiNote text={order.stages.loa.aiInsight} />}
-                        </div>
-                      )}
-                      {stageKey === "loa" && stage.status === "pending" && order.stages.loa.aiInsight && (
-                        <AiNote text={order.stages.loa.aiInsight} />
-                      )}
+  <div className="text-sm text-muted-foreground space-y-2">
+
+    {order.stages.loa.items?.map((item, i) => (
+      <div key={i} className="flex flex-col border rounded-md p-2 bg-slate-50">
+
+        {/* Part Number */}
+        <span className="text-xs text-muted-foreground">
+          P/N Customer : {item.partNumber}
+        </span>
+
+        {/* SPK + Status */}
+        <span
+          className={`font-semibold text-sm ${
+            item.loaNumber === "-"
+              ? "text-red-600"
+              : "text-emerald-600"
+          }`}
+        >
+          No. SPK : {item.loaNumber === "-" ? "SPK Belum Tersedia" : item.loaNumber}
+        </span>
+
+      </div>
+    ))}
+
+    {order.stages.loa.aiInsight && (
+      <AiNote text={order.stages.loa.aiInsight} />
+    )}
+  </div>
+)}
 
                       {/* Production */}
-                      {stageKey === "production" && stage.status !== "pending" && (
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-3">
-                            <Progress value={(order.stages.production.progress / order.stages.production.target) * 100} className="h-2.5 flex-1" />
-                            <span className="text-sm text-muted-foreground font-medium">
-                              {order.stages.production.progress}/{order.stages.production.target}
-                            </span>
-                          </div>
-                          <div className="flex gap-4 text-sm text-muted-foreground flex-wrap">
-                            {order.stages.production.defectRate !== undefined && (
-                              <span>Defect: <span className={cn("font-medium", order.stages.production.defectRate > 3 ? "text-destructive" : "text-foreground")}>{order.stages.production.defectRate}%</span></span>
-                            )}
-                            {order.stages.production.estimatedReady && <span>Est. ready: {order.stages.production.estimatedReady}</span>}
-                            {order.stages.production.assignedLine && <span>Line: {order.stages.production.assignedLine}</span>}
-                          </div>
-                          {/* Process Layers */}
-                          {order.stages.production.processLayers && order.stages.production.processLayers.length > 0 && (
-                            <div className="space-y-1.5">
-                              <div className="flex items-center gap-3 flex-wrap">
-                                {order.stages.production.processLayers.map((layer, li) => (
-                                  <div key={li} className="flex items-center gap-1.5 text-sm">
-                                    <ProcessLayerBadge status={layer.status} />
-                                    <span className={cn("text-muted-foreground", layer.status === "flagged" && "text-destructive font-medium")}>{layer.name}</span>
-                                    {layer.defectRate !== undefined && layer.status === "flagged" && (
-                                      <span className="text-xs text-destructive">({layer.defectRate}%)</span>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                              {/* NG Codes for flagged layers */}
-                              {order.stages.production.processLayers
-                                .filter(layer => layer.status === "flagged" && layer.ngCode)
-                                .map((layer, li) => (
-                                  <div key={li} className="flex items-center gap-2 text-xs bg-destructive/5 rounded-md px-2.5 py-1.5 border border-destructive/10">
-                                    <XCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
-                                    <span className="text-destructive font-mono font-medium">{layer.ngCode}</span>
-                                    <span className="text-muted-foreground">— {layer.ngReason}</span>
-                                  </div>
-                                ))}
-                            </div>
-                          )}
-                          {order.stages.production.bottleneck && (
-                            <div className="flex items-center gap-2 text-xs text-destructive bg-destructive/5 rounded-md px-2.5 py-1.5">
-                              <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-                              <span>Bottleneck: {order.stages.production.bottleneck}</span>
-                            </div>
-                          )}
-                          {order.stages.production.aiInsight && <AiNote text={order.stages.production.aiInsight} />}
-                        </div>
+                      {stageKey === "production" && 
+ order.stages.production.status !== "pending" && // ✅ Cek status di sini
+ order.stages.production.items && 
+ order.stages.production.items.length > 0 && (
+  <div className="mt-4 overflow-x-auto border rounded-lg bg-white">
+    <table className="w-full text-left border-collapse">
+      <thead>
+        <tr className="bg-slate-50 border-b">
+          <th className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase">Part Number</th>
+          {/* Header Kolom Tahapan */}
+          {[...new Set(order.stages.production.items.map(i => i.tahapan))]
+            .sort((a, b) => {
+                const numA = order.stages.production.items.find(i => i.tahapan === a)?.nomor || 0;
+                const numB = order.stages.production.items.find(i => i.tahapan === b)?.nomor || 0;
+                return numA - numB;
+            })
+            .map((tahapan) => (
+              <th key={tahapan} className="px-4 py-3 text-xs font-semibold text-muted-foreground text-center uppercase">
+                {tahapan}
+              </th>
+            ))}
+        </tr>
+      </thead>
+      <tbody className="divide-y">
+        {Object.entries(
+          order.stages.production.items.reduce((acc, item) => {
+            if (!acc[item.partNumber]) acc[item.partNumber] = {};
+            acc[item.partNumber][item.tahapan] = item.jumlah;
+            return acc;
+          }, {})
+        ).map(([pn, tahapanValues], idx) => (
+          <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+            <td className="px-4 py-3 font-bold text-sm text-slate-900 uppercase">
+              {pn}
+            </td>
+            {/* Value per Tahapan */}
+            {[...new Set(order.stages.production.items.map(i => i.tahapan))]
+              .sort((a, b) => {
+                const numA = order.stages.production.items.find(i => i.tahapan === a)?.nomor || 0;
+                const numB = order.stages.production.items.find(i => i.tahapan === b)?.nomor || 0;
+                return numA - numB;
+              })
+              .map((tahapan) => (
+                <td key={tahapan} className="px-4 py-3 text-sm text-center font-medium text-blue-600">
+                  {tahapanValues[tahapan] || 0}
+                </td>
+              ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
                       )}
 
                       {/* Delivery */}

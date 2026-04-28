@@ -170,6 +170,7 @@ const normalizeOrder = (item: any) => ({
   client: item.client,
   product: item.product,
   qty: item.qty || 0,
+  total: item.total || 0,
   deadline: item.deadline,
   poDate: item.po_date,
   currentStage: item.current_stage, // 🔥 FIX snake_case → camelCase

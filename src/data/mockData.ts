@@ -664,6 +664,8 @@ export interface PurchasingOrder {
 
 export interface OrderMaterial {
   name: string;
+  vendor: string;
+  jenis: string;
   required: number;
   unit: string;
   status: MaterialCheckStatus;
@@ -696,6 +698,7 @@ export interface Order {
   client: string;
   product: string;
   qty: number;
+  total: number;
   deadline: string;
   poDate?: string;
   currentStage: OrderStage;
@@ -748,6 +751,7 @@ export const orders: Order[] = [
     client: "PT Schneider Electric Indonesia",
     product: "Wiring Harness Assy — Control Panel 24V",
     qty: 2000,
+    total: 3000,
     deadline: "30 Apr 2026",
     poDate: "5 Mar 2026",
     currentStage: "production",
@@ -813,6 +817,7 @@ export const orders: Order[] = [
     client: "PT Panasonic Manufacturing",
     product: "Transformer Assy — Step Down 220V/12V",
     qty: 500,
+    total: 3000,
     deadline: "15 Apr 2026",
     poDate: "25 Feb 2026",
     currentStage: "production",
@@ -875,6 +880,7 @@ export const orders: Order[] = [
     client: "PT Astra Otoparts",
     product: "Wiring Harness Assy — Engine Bay Sensor",
     qty: 3000,
+    total: 3000,
     deadline: "20 Apr 2026",
     poDate: "10 Mar 2026",
     currentStage: "materialCheck",
@@ -927,6 +933,7 @@ export const orders: Order[] = [
     client: "PT Sumitomo Wiring Systems",
     product: "Custom Cable Assembly — Multi-Core 8P",
     qty: 5000,
+    total: 3000,
     deadline: "10 Mei 2026",
     poDate: "1 Apr 2026",
     currentStage: "materialCheck",
@@ -964,6 +971,7 @@ export const orders: Order[] = [
     client: "PT Yazaki Indonesia",
     product: "Wiring Harness Assy — Automotive Dashboard",
     qty: 1500,
+    total: 3000,
     deadline: "5 Apr 2026",
     poDate: "10 Feb 2026",
     currentStage: "delivery",
@@ -1020,6 +1028,7 @@ export const orders: Order[] = [
     client: "PT Schneider Electric Indonesia",
     product: "Control Panel Wiring — Distribution Board",
     qty: 800,
+    total: 3000,
     deadline: "25 Mar 2026",
     poDate: "15 Jan 2026",
     currentStage: "closing",
@@ -1075,6 +1084,7 @@ export const orders: Order[] = [
     client: "PT Panasonic Manufacturing",
     product: "Wiring Harness Assy — AC Indoor Unit",
     qty: 1200,
+    total: 3000,
     deadline: "1 Mar 2026",
     poDate: "5 Jan 2026",
     currentStage: "closing",
